@@ -168,16 +168,15 @@ const SCENES = [
   { t: "Ơ… tuyết rơi rồi sao?", mood: "sleepy" },
   { t: "Chào " + NAME + "! Tớ là <b>Bông</b>, một cục tuyết nhỏ vừa thức giấc." },
   { t: "Đêm nay ông già Noel nhờ tớ đi giao <b>một món quà</b>." },
-  { t: "Đường tối quá… Cậu hãy chạm bắt **3 hạt tuyết phép thuật** để thắp sáng cây thông nhé!", minigame: true },
-  { t: "May quá, cây thông này đã sáng lên để dẫn đường cho tớ!", tree: true, mood: "happy" },
+  { t: "Tớ đã đi qua bao con phố lạnh để tìm " + NAME + "…" },
+  { t: "May quá, cây thông này sáng lên để dẫn đường cho tớ!", tree: true, mood: "happy" },
   { t: "Ông già Noel bảo, năm nay " + NAME + " đã <b>cố gắng rất nhiều</b> rồi đó.", tree: true, mood: "happy" },
   { t: "Giáng sinh an lành nhé, <b>" + NAME + "</b>! Chúc " + NAME + " một mùa đông thật ấm, nhiều tiếng cười và thật nhiều bình yên.", tree: true, gift: true, mood: "happy", final: true }
 ];
 
 const $ = id => document.getElementById(id);
 const text = $("text"), body = document.body;
-let i = 0, busy = false, minigameActive = false, caughtMagic = 0;
-const magicFlakes = [];
+let i = 0, busy = false;
 
 // Dựng cảnh nền
 let pines = "";
@@ -209,33 +208,22 @@ function show(n) {
     $("bong").classList.toggle("sleepy", s.mood === "sleepy");
     $("mouth").setAttribute("d", s.mood === "happy" ? "M48 94 Q60 108 72 94" : "M52 96 Q60 98 68 96");
     
-    if (s.minigame) {
-      minigameActive = true;
-      caughtMagic = 0;
-      spawnMagicFlakes();
-      $("hint").textContent = "chạm vào các hạt tuyết vàng đang bay!";
-    } else {
-      minigameActive = false;
-      magicFlakes.length = 0;
-      $("hint").textContent = "chạm để tiếp tục";
-    }
-    
     flakes.target = s.final ? 170 : 95;
     if (s.final) burst();
   }, 420);
 }
 
 function next() {
-  if (busy || minigameActive || i >= SCENES.length - 1) return;
+  if (busy || i >= SCENES.length - 1) return;
   busy = true; i++; show(i);
   setTimeout(() => busy = false, 900);
 }
 
 document.addEventListener("pointerup", e => { 
-  if (e.target.id !== "again" && e.target.id !== "moodBtn" && !minigameActive) next(); 
+  if (e.target.id !== "again" && e.target.id !== "moodBtn") next(); 
 });
 document.addEventListener("keydown", e => {
-  if ((e.key === " " || e.key === "Enter" || e.key === "ArrowRight") && e.target.id !== "again" && !minigameActive) { e.preventDefault(); next(); } 
+  if ((e.key === " " || e.key === "Enter" || e.key === "ArrowRight") && e.target.id !== "again") { e.preventDefault(); next(); } 
 });
 $("again").addEventListener("click", e => { e.stopPropagation(); i = 0; parts.length = 0; show(0); });
 
@@ -249,7 +237,7 @@ moodBtn.addEventListener("click", e => {
   moodBtn.textContent = isStorm ? "⚡ Vibe: Bão Tuyết" : "🌙 Vibe: Êm Dịu";
 });
 
-// Phản ứng lầy lội khi bấm vào Bông (Đã sửa để click ăn ngay mọi lúc)
+// Phản ứng lầy lội khi bấm vào Bông
 const bongContainer = $("bongContainer"), bubble = $("speechBubble");
 const reactions = [
   "Ấn gì mà ấn lắm thế! 😄",
@@ -268,7 +256,7 @@ bongContainer.addEventListener("pointerup", e => {
   bubbleTimer = setTimeout(() => { bubble.style.display = "none"; }, 1800);
 });
 
-// Canvas Tuyết & Minigame Tuyết Phép Thuật
+// Canvas Tuyết rơi
 const cv = $("snow"), cx = cv.getContext("2d"), dpr = devicePixelRatio || 1;
 const flakes = { list: [], target: 95 }, parts = [];
 function size() { cv.width = innerWidth * dpr; cv.height = innerHeight * dpr; }
@@ -279,48 +267,6 @@ function spawn(top) {
   return { x: Math.random() * cv.width, y: top ? -10 : Math.random() * cv.height, z,
     r: (z * 2.6 + 0.8) * dpr, v: (z * 0.9 + 0.3) * dpr, p: Math.random() * 6.28 };
 }
-
-function spawnMagicFlakes() {
-  magicFlakes.length = 0;
-  for (let k = 0; k < 3; k++) {
-    magicFlakes.push({
-      x: Math.random() * (cv.width - 200 * dpr) + 100 * dpr,
-      y: Math.random() * (cv.height * 0.4) + cv.height * 0.3,
-      r: 10 * dpr,
-      vx: (Math.random() - 0.5) * 2 * dpr,
-      vy: (Math.random() - 0.5) * 2 * dpr,
-      p: Math.random() * 6.28
-    });
-  }
-}
-
-cv.addEventListener("pointerup", e => {
-  if (!minigameActive) return;
-  const rect = cv.getBoundingClientRect();
-  const mx = (e.clientX - rect.left) * dpr;
-  const my = (e.clientY - rect.top) * dpr;
-
-  for (let k = magicFlakes.length - 1; k >= 0; k--) {
-    const mf = magicFlakes[k];
-    const dist = Math.hypot(mf.x - mx, mf.y - my);
-    if (dist < mf.r * 3.5) {
-      burstAt(mf.x, mf.y, ["#ffc86b", "#fff", "#00ffcc"]);
-      magicFlakes.splice(k, 1);
-      caughtMagic++;
-      if (caughtMagic >= 3) {
-        minigameActive = false;
-        text.innerHTML = "Tuyệt vời! Cây thông đã nhận đủ năng lượng! ✨";
-        setTimeout(() => {
-          i++;
-          show(i);
-        }, 1200);
-      } else {
-        text.innerHTML = `Đã bắt được <b>${caughtMagic}/3</b> hạt tuyết phép thuật! Cố lên!`;
-      }
-      break;
-    }
-  }
-});
 
 function burst() { burstAt(cv.width / 2, cv.height * 0.42, ["#ffc86b", "#fff", "#e0525f", "#8fd3ff"]); }
 function burstAt(ox, oy, cols) {
@@ -341,30 +287,6 @@ function loop() {
     if (f.y > cv.height + 10) Object.assign(f, spawn(true));
     cx.fillStyle = `rgba(244,248,255,${0.45 + f.z * 0.5})`;
     cx.beginPath(); cx.arc(f.x, f.y, f.r, 0, 6.28); cx.fill();
-  }
-
-  if (minigameActive) {
-    magicFlakes.forEach((mf, index) => {
-      mf.x += mf.vx; mf.y += mf.vy; mf.p += 0.1;
-      if (mf.x < 50 || mf.x > cv.width - 50) mf.vx *= -1;
-      if (mf.y < cv.height * 0.2 || mf.y > cv.height * 0.7) mf.vy *= -1;
-
-      cx.save();
-      cx.translate(mf.x, mf.y);
-      cx.rotate(mf.p);
-      cx.fillStyle = "#ffc86b";
-      cx.shadowColor = "#ffc86b";
-      cx.shadowBlur = 15;
-      cx.beginPath();
-      for (let s = 0; s < 4; s++) {
-        cx.lineTo(0, -mf.r * 1.5);
-        cx.rotate(Math.PI / 4);
-        cx.lineTo(0, -mf.r * 0.6);
-        cx.rotate(Math.PI / 4);
-      }
-      cx.fill();
-      cx.restore();
-    });
   }
 
   for (let k = parts.length - 1; k >= 0; k--) {
