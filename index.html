@@ -43,9 +43,10 @@ body{margin:0;height:100%;overflow:hidden;font-family:"Baloo 2","Segoe UI",syste
 #dots i{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.25);border:1.5px solid #000;transition:.4s}
 #dots i.on{background:var(--lamp);transform:scale(1.25)}
 
-/* Nút đổi Vibe & Hộp thoại phản ứng của Bông */
-#moodBtn{position:fixed;top:calc(14px + env(safe-area-inset-top,0px));left:16px;z-index:20;background:rgba(0,0,0,0.4);border:2px solid #fff;color:#fff;padding:6px 14px;border-radius:20px;font:inherit;font-weight:700;font-size:0.85rem;cursor:pointer;backdrop-filter:blur(6px);transition:.2s}
-#moodBtn:hover{background:rgba(255,255,255,0.2)}
+/* Các nút điều khiển góc trên */
+.top-controls{position:fixed;top:calc(14px + env(safe-area-inset-top,0px));left:16px;z-index:20;display:flex;gap:8px;}
+.ctrl-btn{background:rgba(0,0,0,0.4);border:2px solid #fff;color:#fff;padding:6px 14px;border-radius:20px;font:inherit;font-weight:700;font-size:0.85rem;cursor:pointer;backdrop-filter:blur(6px);transition:.2s}
+.ctrl-btn:hover{background:rgba(255,255,255,0.2)}
 
 #speechBubble{display:none;position:absolute;top:-48px;left:50%;transform:translateX(-50%);background:#fff;color:#000;padding:6px 14px;border-radius:14px;font-weight:800;font-size:0.9rem;border:2.5px solid #000;box-shadow:0 4px 12px rgba(0,0,0,0.3);white-space:nowrap;z-index:30;animation:pop .25s cubic-bezier(.2,.9,.3,1.4)}
 #speechBubble::after{content:'';position:absolute;bottom:-7px;left:50%;transform:translateX(-50%) rotate(45deg);width:10px;height:10px;background:#fff;border-right:2.5px solid #000;border-bottom:2.5px solid #000}
@@ -93,7 +94,14 @@ body{margin:0;height:100%;overflow:hidden;font-family:"Baloo 2","Segoe UI",syste
 </style>
 </head>
 <body>
-<button id="moodBtn" type="button">🌙 Vibe: Êm Dịu</button>
+<div class="top-controls">
+  <button id="moodBtn" class="ctrl-btn" type="button">🌙 Vibe: Êm Dịu</button>
+  <button id="musicBtn" class="ctrl-btn" type="button">🎵 Bật Nhạc</button>
+</div>
+
+<!-- Thẻ nhạc nội bộ (Đổi tên file mp3 của bạn thành nhac.mp3 hoặc sửa lại src) -->
+<audio id="bgMusic" loop src="nhac.mp3"></audio>
+
 <div class="bg" id="stars"></div>
 <div class="bg" id="aurora"></div>
 <div id="moon"></div>
@@ -163,14 +171,17 @@ body{margin:0;height:100%;overflow:hidden;font-family:"Baloo 2","Segoe UI",syste
 <div id="hint">chạm để tiếp tục</div>
 
 <script>
-const NAME = "cậu";
+// Lấy tên từ URL (ví dụ: ?to=Tên_Người_Nhận), mặc định là "cậu"
+const params = new URLSearchParams(location.search);
+const NAME = params.get("to") || "cậu";
+
 const SCENES = [
   { t: "Ơ… tuyết rơi rồi sao?", mood: "sleepy" },
-  { t: "Chào " + NAME + "! Tớ là <b>Bông</b>, một cục tuyết nhỏ vừa thức giấc." },
-  { t: "Đêm nay ông già Noel nhờ tớ đi giao <b>một món quà</b>." },
+  { t: "Chào " + NAME + "! Tớ là <b>Bông</b>, tớ đến đây theo yêu cầu của Wilhelm để chúc mừng cậu.", mood: "happy" },
+  { t: "Đêm nay ông già Noel nhờ tớ đi giao <b>một món quà</b>.", mood: "happy" },
   { t: "Tớ đã đi qua bao con phố lạnh để tìm " + NAME + "…" },
   { t: "May quá, cây thông này sáng lên để dẫn đường cho tớ!", tree: true, mood: "happy" },
-  { t: "Ông già Noel bảo, năm nay " + NAME + " đã <b>cố gắng rất nhiều</b> rồi đó.", tree: true, mood: "happy" },
+  { t: "Nghe bảo năm nay " + NAME + " đã <b>cố gắng rất nhiều</b> rồi đó nha.", tree: true, mood: "happy" },
   { t: "Giáng sinh an lành nhé, <b>" + NAME + "</b>! Chúc " + NAME + " một mùa đông thật ấm, nhiều tiếng cười và thật nhiều bình yên.", tree: true, gift: true, mood: "happy", final: true }
 ];
 
@@ -220,7 +231,7 @@ function next() {
 }
 
 document.addEventListener("pointerup", e => { 
-  if (e.target.id !== "again" && e.target.id !== "moodBtn") next(); 
+  if (e.target.id !== "again" && e.target.id !== "moodBtn" && e.target.id !== "musicBtn") next(); 
 });
 document.addEventListener("keydown", e => {
   if ((e.key === " " || e.key === "Enter" || e.key === "ArrowRight") && e.target.id !== "again") { e.preventDefault(); next(); } 
@@ -237,12 +248,33 @@ moodBtn.addEventListener("click", e => {
   moodBtn.textContent = isStorm ? "⚡ Vibe: Bão Tuyết" : "🌙 Vibe: Êm Dịu";
 });
 
+// Xử lý bật/tắt nhạc file nội bộ
+const musicBtn = $("musicBtn");
+const bgMusic = $("bgMusic");
+let isMusicPlaying = false;
+
+musicBtn.addEventListener("click", e => {
+  e.stopPropagation();
+  if (!isMusicPlaying) {
+    bgMusic.play().then(() => {
+      musicBtn.textContent = "🔇 Tắt Nhạc";
+      isMusicPlaying = true;
+    }).catch(err => {
+      console.log("Trình duyệt chặn phát nhạc tự động:", err);
+    });
+  } else {
+    bgMusic.pause();
+    musicBtn.textContent = "🎵 Bật Nhạc";
+    isMusicPlaying = false;
+  }
+});
+
 // Phản ứng lầy lội khi bấm vào Bông
 const bongContainer = $("bongContainer"), bubble = $("speechBubble");
 const reactions = [
   "Ấn gì mà ấn lắm thế! 😄",
   "Hắt xì! Lạnh quá đi...",
-  "Tớ là Bông, không phải nút bấm đâu nhé!",
+  "Tớ được Wilhelm nhờ vả cẩn thận lắm đấy nhé!",
   "Sắp tới Noel rồi, hồi hộp quá đi!",
   "Chạm nhẹ thôi, tớ tan chảy bây giờ!"
 ];
