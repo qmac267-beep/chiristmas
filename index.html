@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bông và món quà đêm Giáng sinh</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --sky-top:#070a22; --sky-bot:#233580; --snow:#f4f8ff; --lamp:#ffc86b; --berry:#e0525f; --pine:#1f6b4f; --ink:#ffffff; --outline:#000000;
+  color-scheme:dark; box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+body.storm{--sky-top:#120320;--sky-bot:#4b134f;--lamp:#00ffcc;--berry:#ff0055;}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;height:100%;overflow:hidden;font-family:"Baloo 2","Segoe UI",system-ui,sans-serif;color:var(--ink);
+  background:linear-gradient(180deg,var(--sky-top),var(--sky-bot) 75%);-webkit-tap-highlight-color:transparent;user-select:none;cursor:pointer}
+.bg{position:fixed;inset:0;pointer-events:none}
+#stars{background:
+  radial-gradient(1.5px 1.5px at 12% 18%,#fff,transparent),radial-gradient(1px 1px at 28% 40%,#fff,transparent),
+  radial-gradient(1.5px 1.5px at 47% 12%,#fff,transparent),radial-gradient(1px 1px at 63% 33%,#fff,transparent),
+  radial-gradient(2px 2px at 82% 16%,#fff,transparent),radial-gradient(1px 1px at 91% 48%,#fff,transparent),
+  radial-gradient(1px 1px at 8% 62%,#fff,transparent),radial-gradient(1.5px 1.5px at 74% 58%,#fff,transparent),
+  radial-gradient(1px 1px at 38% 24%,#fff,transparent),radial-gradient(1.5px 1.5px at 56% 52%,#fff,transparent);
+  animation:tw 5s ease-in-out infinite alternate}
+@keyframes tw{from{opacity:.5}to{opacity:1}}
+#aurora{background:
+  radial-gradient(60% 28% at 25% 30%,rgba(80,220,180,.22),transparent 70%),
+  radial-gradient(55% 25% at 75% 22%,rgba(150,120,255,.22),transparent 70%);
+  filter:blur(18px);animation:drift 14s ease-in-out infinite alternate}
+@keyframes drift{to{transform:translateX(5vw) scaleY(1.15)}}
+#moon{position:fixed;top:calc(9vh + env(safe-area-inset-top,0px));right:9vw;width:min(17vw,84px);aspect-ratio:1;border-radius:50%;
+  background:radial-gradient(circle at 35% 35%,#fffbe6,#ffe9a8 60%,#f3cf78);box-shadow:0 0 60px 18px rgba(255,235,170,.32)}
+#far,#hill{position:fixed;left:0;right:0;bottom:0;width:100%;pointer-events:none}
+#far{height:34vh}#hill{height:24vh}
+#garland{position:fixed;top:env(safe-area-inset-top,0px);left:0;width:100%;height:56px;pointer-events:none}
+.bulb{animation:glow 1.6s ease-in-out infinite alternate}
+@keyframes glow{from{opacity:.3}to{opacity:1}}
+#snow{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:5}
+#dots{position:fixed;top:calc(62px + env(safe-area-inset-top,0px));left:0;right:0;display:flex;justify-content:center;gap:8px;z-index:10}
+#dots i{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.25);border:1.5px solid #000;transition:.4s}
+#dots i.on{background:var(--lamp);transform:scale(1.25)}
+
+/* Nút đổi Vibe & Hộp thoại phản ứng của Bông */
+#moodBtn{position:fixed;top:calc(14px + env(safe-area-inset-top,0px));left:16px;z-index:20;background:rgba(0,0,0,0.4);border:2px solid #fff;color:#fff;padding:6px 14px;border-radius:20px;font:inherit;font-weight:700;font-size:0.85rem;cursor:pointer;backdrop-filter:blur(6px);transition:.2s}
+#moodBtn:hover{background:rgba(255,255,255,0.2)}
+
+#speechBubble{display:none;position:absolute;top:-48px;left:50%;transform:translateX(-50%);background:#fff;color:#000;padding:6px 14px;border-radius:14px;font-weight:800;font-size:0.9rem;border:2.5px solid #000;box-shadow:0 4px 12px rgba(0,0,0,0.3);white-space:nowrap;z-index:30;animation:pop .25s cubic-bezier(.2,.9,.3,1.4)}
+#speechBubble::after{content:'';position:absolute;bottom:-7px;left:50%;transform:translateX(-50%) rotate(45deg);width:10px;height:10px;background:#fff;border-right:2.5px solid #000;border-bottom:2.5px solid #000}
+
+#stage{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.4vh;padding:96px 24px calc(48px + env(safe-area-inset-bottom,0px))}
+#props{height:clamp(110px,25vh,230px);display:flex;align-items:flex-end;justify-content:center;gap:4vw}
+#props svg{height:100%;width:auto;overflow:visible}
+#tree{opacity:0;scale:.6;transform-origin:50% 100%;transition:opacity .9s,scale .9s cubic-bezier(.2,.9,.3,1.2)}
+.show-tree #tree{opacity:1;scale:1}
+.show-gift #tree{height:100%}
+#gift{display:none;height:62%!important}
+.show-gift #gift{display:block;animation:pop .7s cubic-bezier(.2,.9,.3,1.4)}
+.show-gift #lid{transform-box:fill-box;transform-origin:0 100%;animation:open 1s .6s forwards}
+.spark{opacity:0;animation:sp 1.6s 1.2s infinite}
+.show-gift .spark{opacity:1}
+@keyframes sp{0%,100%{opacity:0;scale:.3}50%{opacity:1;scale:1}}
+.spark{transform-box:fill-box;transform-origin:center}
+@keyframes pop{from{scale:.2;opacity:0}to{scale:1;opacity:1}}
+@keyframes open{to{transform:rotate(-38deg) translate(-4px,-8px)}}
+.light{animation:glow 1.8s ease-in-out infinite alternate}
+
+#bongContainer{position:relative;cursor:pointer;display:inline-block;pointer-events:auto;z-index:25;}
+#bong{width:min(32vw,135px);height:auto;overflow:visible;animation:bob 3.4s ease-in-out infinite;pointer-events:auto;}
+@keyframes bob{50%{translate:0 -8px}}
+.eye{transform-box:fill-box;transform-origin:center;animation:blink 4.6s infinite}
+@keyframes blink{0%,93%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+.sleepy .eye{transform:scaleY(.15);animation:none}
+#armL,#armR{transform-box:fill-box;transform-origin:50% 0;transition:transform .6s}
+.happy #armL{transform:rotate(35deg)}.happy #armR{transform:rotate(-35deg)}
+
+.outlined,#text,#hint,#again{-webkit-text-stroke:7px var(--outline);paint-order:stroke fill;stroke-linejoin:round;
+  text-shadow:0 3px 0 var(--outline),0 0 16px rgba(0,0,0,.7)}
+#text{max-width:21em;text-align:center;font-size:clamp(1.45rem,5.8vw,2rem);line-height:1.32;font-weight:800;text-wrap:balance;min-height:4.4em;
+  display:flex;align-items:center;justify-content:center;transition:opacity .5s,translate .5s}
+#text.out{opacity:0;translate:0 8px}
+#text b{color:var(--lamp)}
+#hint{position:fixed;bottom:calc(12px + env(safe-area-inset-bottom,0px));left:0;right:0;text-align:center;font-size:1.05rem;font-weight:700;-webkit-text-stroke-width:5px;animation:tw 2.2s ease-in-out infinite alternate;z-index:10}
+#again{display:none;margin-top:2px;padding:8px 24px;font:inherit;font-weight:800;font-size:1.1rem;color:#2a1a00;background:var(--lamp);border:3px solid #000;border-radius:999px;cursor:pointer;-webkit-text-stroke:0;text-shadow:none}
+#again:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.final #again{display:block}.final #hint{display:none}
+#shoot{position:fixed;top:14vh;left:-20vw;width:90px;height:3px;border-radius:3px;background:linear-gradient(90deg,transparent,#fff);rotate:18deg;opacity:0}
+.final #shoot{animation:shoot 1.6s 1s ease-out forwards}
+@keyframes shoot{0%{translate:0 0;opacity:1}100%{translate:130vw 40vh;opacity:0}}
+@media (prefers-reduced-motion:reduce){#bong,.light,.bulb,#stars,#aurora,#hint,.eye,.spark{animation:none}}
+</style>
+</head>
+<body>
+<button id="moodBtn" type="button">🌙 Vibe: Êm Dịu</button>
+<div class="bg" id="stars"></div>
+<div class="bg" id="aurora"></div>
+<div id="moon"></div>
+<div id="shoot"></div>
+<svg id="far" viewBox="0 0 400 120" preserveAspectRatio="none" aria-hidden="true">
+  <path d="M0 70 Q80 30 170 62 T400 48 V120 H0Z" fill="#26397f"/>
+  <g id="pines" fill="#14275e"></g>
+  <path d="M0 96 Q120 66 230 90 T400 80 V120 H0Z" fill="#dbe7ff"/>
+</svg>
+<svg id="hill" viewBox="0 0 400 100" preserveAspectRatio="none" aria-hidden="true">
+  <path d="M0 44 Q110 6 220 38 T400 24 V100 H0Z" fill="#f4f8ff"/>
+</svg>
+<svg id="garland" viewBox="0 0 400 56" preserveAspectRatio="none" aria-hidden="true">
+  <path d="M-5 6 Q50 46 100 12 T200 12 T300 12 T405 8" fill="none" stroke="#0a3a2c" stroke-width="2.5"/>
+  <g id="bulbs"></g>
+</svg>
+<canvas id="snow"></canvas>
+<div id="dots" aria-hidden="true"></div>
+
+<main id="stage" aria-live="polite">
+  <div id="props">
+    <svg id="tree" viewBox="0 0 120 150" aria-hidden="true">
+      <ellipse cx="60" cy="146" rx="42" ry="5" fill="rgba(0,0,0,.25)"/>
+      <polygon points="60,6 92,58 28,58" fill="var(--pine)" stroke="#000" stroke-width="2.5" stroke-linejoin="round"/>
+      <polygon points="60,32 100,92 20,92" fill="#27805e" stroke="#000" stroke-width="2.5" stroke-linejoin="round"/>
+      <polygon points="60,64 108,128 12,128" fill="var(--pine)" stroke="#000" stroke-width="2.5" stroke-linejoin="round"/>
+      <rect x="53" y="128" width="14" height="18" fill="#7a4a2b" stroke="#000" stroke-width="2.5"/>
+      <path d="M34 54 Q60 70 86 54 M26 88 Q60 108 94 88 M18 122 Q60 146 102 122" fill="none" stroke="#fff3c4" stroke-width="2.2" stroke-dasharray="1 5" stroke-linecap="round"/>
+      <circle cx="60" cy="0" r="11" fill="rgba(255,200,107,.35)"/>
+      <polygon points="60,-4 63,4 72,4 65,9 68,17 60,12 52,17 55,9 48,4 57,4" fill="var(--lamp)" stroke="#000" stroke-width="1.6" stroke-linejoin="round"/>
+      <g id="lights"></g>
+    </svg>
+    <svg id="gift" viewBox="0 0 120 110" aria-hidden="true">
+      <rect x="14" y="44" width="92" height="60" rx="6" fill="var(--berry)" stroke="#000" stroke-width="3"/>
+      <rect x="54" y="44" width="12" height="60" fill="var(--lamp)" stroke="#000" stroke-width="2"/>
+      <g id="lid"><rect x="8" y="28" width="104" height="20" rx="6" fill="#ec6a76" stroke="#000" stroke-width="3"/>
+        <rect x="54" y="28" width="12" height="20" fill="var(--lamp)" stroke="#000" stroke-width="2"/>
+        <path d="M60 28 C38 2 20 22 60 28 C100 22 82 2 60 28Z" fill="var(--lamp)" stroke="#000" stroke-width="2.5" stroke-linejoin="round"/></g>
+      <path class="spark" style="animation-delay:1.2s" d="M20 20 L23 28 L31 31 L23 34 L20 42 L17 34 L9 31 L17 28Z" fill="#fff"/>
+      <path class="spark" style="animation-delay:1.8s" d="M100 14 L102 20 L108 22 L102 24 L100 30 L98 24 L92 22 L98 20Z" fill="var(--lamp)"/>
+    </svg>
+  </div>
+
+  <div id="bongContainer">
+    <div id="speechBubble"></div>
+    <svg id="bong" viewBox="0 0 120 130" aria-hidden="true">
+      <ellipse cx="60" cy="124" rx="38" ry="5" fill="rgba(0,0,0,.25)"/>
+      <g id="armL"><path d="M18 78 Q4 76 2 62" fill="none" stroke="#5a3a1e" stroke-width="5" stroke-linecap="round"/></g>
+      <g id="armR"><path d="M102 78 Q116 76 118 62" fill="none" stroke="#5a3a1e" stroke-width="5" stroke-linecap="round"/></g>
+      <circle cx="60" cy="74" r="48" fill="var(--snow)" stroke="#000" stroke-width="3"/>
+      <path d="M14 96 Q60 120 106 96 L102 108 Q60 132 18 108Z" fill="var(--berry)" stroke="#000" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="M18 60 Q60 10 102 60 Q60 42 18 60Z" fill="var(--berry)" stroke="#000" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="M16 60 Q60 46 104 60" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round"/>
+      <circle cx="60" cy="14" r="8" fill="#fff" stroke="#000" stroke-width="2.5"/>
+      <rect class="eye" x="39" y="64" width="12" height="16" rx="6" fill="#1a2350"/>
+      <rect class="eye" x="69" y="64" width="12" height="16" rx="6" fill="#1a2350"/>
+      <circle cx="44" cy="68" r="2.2" fill="#fff"/><circle cx="74" cy="68" r="2.2" fill="#fff"/>
+      <path d="M56 84 L64 84 L60 94Z" fill="#ff9a3c" stroke="#000" stroke-width="1.8" stroke-linejoin="round"/>
+      <ellipse cx="30" cy="86" rx="7" ry="4.5" fill="#ffb3bb" opacity=".75"/><ellipse cx="90" cy="86" rx="7" ry="4.5" fill="#ffb3bb" opacity=".75"/>
+      <path id="mouth" d="M52 96 Q60 98 68 96" fill="none" stroke="#1a2350" stroke-width="3" stroke-linecap="round"/>
+    </svg>
+  </div>
+
+  <p id="text"></p>
+  <button id="again" type="button">Xem lại từ đầu</button>
+</main>
+<div id="hint">chạm để tiếp tục</div>
+
+<script>
+const NAME = "cậu";
+const SCENES = [
+  { t: "Ơ… tuyết rơi rồi sao?", mood: "sleepy" },
+  { t: "Chào " + NAME + "! Tớ là <b>Bông</b>, một cục tuyết nhỏ vừa thức giấc." },
+  { t: "Đêm nay ông già Noel nhờ tớ đi giao <b>một món quà</b>." },
+  { t: "Đường tối quá… Cậu hãy chạm bắt **3 hạt tuyết phép thuật** để thắp sáng cây thông nhé!", minigame: true },
+  { t: "May quá, cây thông này đã sáng lên để dẫn đường cho tớ!", tree: true, mood: "happy" },
+  { t: "Ông già Noel bảo, năm nay " + NAME + " đã <b>cố gắng rất nhiều</b> rồi đó.", tree: true, mood: "happy" },
+  { t: "Giáng sinh an lành nhé, <b>" + NAME + "</b>! Chúc " + NAME + " một mùa đông thật ấm, nhiều tiếng cười và thật nhiều bình yên.", tree: true, gift: true, mood: "happy", final: true }
+];
+
+const $ = id => document.getElementById(id);
+const text = $("text"), body = document.body;
+let i = 0, busy = false, minigameActive = false, caughtMagic = 0;
+const magicFlakes = [];
+
+// Dựng cảnh nền
+let pines = "";
+for (let k = 0; k < 14; k++) { const x = 12 + k * 29 + (k % 3) * 6, h = 26 + (k * 7 % 18), y = 76;
+  pines += `<polygon points="${x},${y - h} ${x + 9},${y} ${x - 9},${y}"/><polygon points="${x},${y - h - 9} ${x + 6.5},${y - h * .45} ${x - 6.5},${y - h * .45}"/>`; }
+$("pines").innerHTML = pines;
+const bc = ["#ffc86b", "#e0525f", "#8fd3ff", "#9be58a"];
+let bulbs = "";
+for (let k = 0; k < 17; k++) { const x = 6 + k * 24.5, y = [10, 22, 30, 24, 14][k % 5] + (k % 3);
+  bulbs += `<circle class="bulb" cx="${x}" cy="${y}" r="3.6" fill="${bc[k % 4]}" stroke="#000" stroke-width="1" style="animation-delay:${(k * .19).toFixed(2)}s"/>`; }
+$("bulbs").innerHTML = bulbs;
+const spots = [[60,22],[50,48],[72,50],[40,76],[62,74],[84,78],[28,108],[52,104],[76,106],[96,110]];
+const tc = ["#ffc86b", "#e0525f", "#8fd3ff", "#ffffff"];
+$("lights").innerHTML = spots.map((p, k) =>
+  `<circle class="light" cx="${p[0]}" cy="${p[1]}" r="3.8" fill="${tc[k % 4]}" stroke="#000" stroke-width="1.2" style="animation-delay:${(k * .23).toFixed(2)}s"/>`).join("");
+$("dots").innerHTML = SCENES.map(() => "<i></i>").join("");
+
+function show(n) {
+  const s = SCENES[n];
+  text.classList.add("out");
+  [...$("dots").children].forEach((d, k) => d.classList.toggle("on", k === n));
+  setTimeout(() => {
+    text.innerHTML = s.t;
+    text.classList.remove("out");
+    body.classList.toggle("show-tree", !!s.tree);
+    body.classList.toggle("show-gift", !!s.gift);
+    body.classList.toggle("final", !!s.final);
+    $("bong").classList.toggle("happy", s.mood === "happy");
+    $("bong").classList.toggle("sleepy", s.mood === "sleepy");
+    $("mouth").setAttribute("d", s.mood === "happy" ? "M48 94 Q60 108 72 94" : "M52 96 Q60 98 68 96");
+    
+    if (s.minigame) {
+      minigameActive = true;
+      caughtMagic = 0;
+      spawnMagicFlakes();
+      $("hint").textContent = "chạm vào các hạt tuyết vàng đang bay!";
+    } else {
+      minigameActive = false;
+      magicFlakes.length = 0;
+      $("hint").textContent = "chạm để tiếp tục";
+    }
+    
+    flakes.target = s.final ? 170 : 95;
+    if (s.final) burst();
+  }, 420);
+}
+
+function next() {
+  if (busy || minigameActive || i >= SCENES.length - 1) return;
+  busy = true; i++; show(i);
+  setTimeout(() => busy = false, 900);
+}
+
+document.addEventListener("pointerup", e => { 
+  if (e.target.id !== "again" && e.target.id !== "moodBtn" && !minigameActive) next(); 
+});
+document.addEventListener("keydown", e => {
+  if ((e.key === " " || e.key === "Enter" || e.key === "ArrowRight") && e.target.id !== "again" && !minigameActive) { e.preventDefault(); next(); } 
+});
+$("again").addEventListener("click", e => { e.stopPropagation(); i = 0; parts.length = 0; show(0); });
+
+// Nút đổi Vibe
+const moodBtn = $("moodBtn");
+let isStorm = false;
+moodBtn.addEventListener("click", e => {
+  e.stopPropagation();
+  isStorm = !isStorm;
+  body.classList.toggle("storm", isStorm);
+  moodBtn.textContent = isStorm ? "⚡ Vibe: Bão Tuyết" : "🌙 Vibe: Êm Dịu";
+});
+
+// Phản ứng lầy lội khi bấm vào Bông (Đã sửa để click ăn ngay mọi lúc)
+const bongContainer = $("bongContainer"), bubble = $("speechBubble");
+const reactions = [
+  "Ấn gì mà ấn lắm thế! 😄",
+  "Hắt xì! Lạnh quá đi...",
+  "Tớ là Bông, không phải nút bấm đâu nhé!",
+  "Sắp tới Noel rồi, hồi hộp quá đi!",
+  "Chạm nhẹ thôi, tớ tan chảy bây giờ!"
+];
+let bubbleTimer;
+bongContainer.addEventListener("pointerup", e => {
+  e.stopPropagation();
+  e.preventDefault();
+  clearTimeout(bubbleTimer);
+  bubble.textContent = reactions[Math.floor(Math.random() * reactions.length)];
+  bubble.style.display = "block";
+  bubbleTimer = setTimeout(() => { bubble.style.display = "none"; }, 1800);
+});
+
+// Canvas Tuyết & Minigame Tuyết Phép Thuật
+const cv = $("snow"), cx = cv.getContext("2d"), dpr = devicePixelRatio || 1;
+const flakes = { list: [], target: 95 }, parts = [];
+function size() { cv.width = innerWidth * dpr; cv.height = innerHeight * dpr; }
+addEventListener("resize", size); size();
+
+function spawn(top) {
+  const z = Math.random();
+  return { x: Math.random() * cv.width, y: top ? -10 : Math.random() * cv.height, z,
+    r: (z * 2.6 + 0.8) * dpr, v: (z * 0.9 + 0.3) * dpr, p: Math.random() * 6.28 };
+}
+
+function spawnMagicFlakes() {
+  magicFlakes.length = 0;
+  for (let k = 0; k < 3; k++) {
+    magicFlakes.push({
+      x: Math.random() * (cv.width - 200 * dpr) + 100 * dpr,
+      y: Math.random() * (cv.height * 0.4) + cv.height * 0.3,
+      r: 10 * dpr,
+      vx: (Math.random() - 0.5) * 2 * dpr,
+      vy: (Math.random() - 0.5) * 2 * dpr,
+      p: Math.random() * 6.28
+    });
+  }
+}
+
+cv.addEventListener("pointerup", e => {
+  if (!minigameActive) return;
+  const rect = cv.getBoundingClientRect();
+  const mx = (e.clientX - rect.left) * dpr;
+  const my = (e.clientY - rect.top) * dpr;
+
+  for (let k = magicFlakes.length - 1; k >= 0; k--) {
+    const mf = magicFlakes[k];
+    const dist = Math.hypot(mf.x - mx, mf.y - my);
+    if (dist < mf.r * 3.5) {
+      burstAt(mf.x, mf.y, ["#ffc86b", "#fff", "#00ffcc"]);
+      magicFlakes.splice(k, 1);
+      caughtMagic++;
+      if (caughtMagic >= 3) {
+        minigameActive = false;
+        text.innerHTML = "Tuyệt vời! Cây thông đã nhận đủ năng lượng! ✨";
+        setTimeout(() => {
+          i++;
+          show(i);
+        }, 1200);
+      } else {
+        text.innerHTML = `Đã bắt được <b>${caughtMagic}/3</b> hạt tuyết phép thuật! Cố lên!`;
+      }
+      break;
+    }
+  }
+});
+
+function burst() { burstAt(cv.width / 2, cv.height * 0.42, ["#ffc86b", "#fff", "#e0525f", "#8fd3ff"]); }
+function burstAt(ox, oy, cols) {
+  for (let k = 0; k < 50; k++) { const a = Math.random() * 6.28, sp = (Math.random() * 5 + 2) * dpr;
+    parts.push({ x: ox, y: oy, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 2 * dpr, life: 1, c: cols[k % cols.length], r: (Math.random() * 3 + 2) * dpr }); }
+}
+
+const calm = matchMedia("(prefers-reduced-motion:reduce)").matches;
+function loop() {
+  cx.clearRect(0, 0, cv.width, cv.height);
+  const speedMultiplier = isStorm ? 2.5 : 1;
+
+  while (flakes.list.length < flakes.target) flakes.list.push(spawn(false));
+  if (flakes.list.length > flakes.target) flakes.list.length = flakes.target;
+  
+  for (const f of flakes.list) {
+    f.y += f.v * speedMultiplier; f.p += 0.015; f.x += Math.sin(f.p) * 0.45 * dpr;
+    if (f.y > cv.height + 10) Object.assign(f, spawn(true));
+    cx.fillStyle = `rgba(244,248,255,${0.45 + f.z * 0.5})`;
+    cx.beginPath(); cx.arc(f.x, f.y, f.r, 0, 6.28); cx.fill();
+  }
+
+  if (minigameActive) {
+    magicFlakes.forEach((mf, index) => {
+      mf.x += mf.vx; mf.y += mf.vy; mf.p += 0.1;
+      if (mf.x < 50 || mf.x > cv.width - 50) mf.vx *= -1;
+      if (mf.y < cv.height * 0.2 || mf.y > cv.height * 0.7) mf.vy *= -1;
+
+      cx.save();
+      cx.translate(mf.x, mf.y);
+      cx.rotate(mf.p);
+      cx.fillStyle = "#ffc86b";
+      cx.shadowColor = "#ffc86b";
+      cx.shadowBlur = 15;
+      cx.beginPath();
+      for (let s = 0; s < 4; s++) {
+        cx.lineTo(0, -mf.r * 1.5);
+        cx.rotate(Math.PI / 4);
+        cx.lineTo(0, -mf.r * 0.6);
+        cx.rotate(Math.PI / 4);
+      }
+      cx.fill();
+      cx.restore();
+    });
+  }
+
+  for (let k = parts.length - 1; k >= 0; k--) {
+    const p = parts[k]; p.x += p.vx; p.y += p.vy; p.vy += 0.12 * dpr; p.life -= 0.012;
+    if (p.life <= 0) { parts.splice(k, 1); continue; }
+    cx.globalAlpha = p.life; cx.fillStyle = p.c; cx.beginPath(); cx.arc(p.x, p.y, p.r, 0, 6.28); cx.fill(); cx.globalAlpha = 1;
+  }
+  if (!calm) requestAnimationFrame(loop);
+}
+loop(); show(0);
+</script>
+</body>
+</html>
