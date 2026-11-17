@@ -18,11 +18,11 @@ html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
 body{margin:0;height:100%;overflow:hidden;font-family:"Baloo 2","Segoe UI",system-ui,sans-serif;color:var(--ink);
   background:linear-gradient(180deg,var(--sky-top),var(--sky-bot) 75%);-webkit-tap-highlight-color:transparent;user-select:none;cursor:pointer}
 
-/* Màn hình tối mở đầu (Bước ra ánh sáng) */
+/* Màn hình tối mở đầu (Tăng thời gian fade để hiệu ứng mượt và sâu lắng hơn) */
 #intro-overlay{
   position:fixed; inset:0; background:#02030a; z-index:9999;
   display:flex; flex-direction:column; justify-content:center; align-items:center;
-  text-align:center; padding:24px; transition:opacity 1.4s ease, visibility 1.4s ease;
+  text-align:center; padding:24px; transition:opacity 2.2s ease, visibility 2.2s ease;
   cursor:pointer;
 }
 #intro-overlay.hide{opacity:0; visibility:hidden; pointer-events:none;}
@@ -117,7 +117,7 @@ body{margin:0;height:100%;overflow:hidden;font-family:"Baloo 2","Segoe UI",syste
 </head>
 <body>
 
-<!-- Màn hình tối mở đầu: Bước ra ánh sáng -->
+<!-- Màn hình tối mở đầu -->
 <div id="intro-overlay">
   <div class="intro-box">
     <h2>❄️ Đêm Đông Lạnh Giá...</h2>
@@ -131,7 +131,7 @@ body{margin:0;height:100%;overflow:hidden;font-family:"Baloo 2","Segoe UI",syste
   <button id="musicBtn" class="ctrl-btn" type="button">🎵 Bật Nhạc</button>
 </div>
 
-<!-- Thẻ nhạc nội bộ -->
+<!-- Thẻ nhạc nội bộ có sẵn loop để lặp lại liên tục -->
 <audio id="bgMusic" loop src="nhac.mp3"></audio>
 
 <div class="bg" id="stars"></div>
@@ -220,14 +220,12 @@ const $ = id => document.getElementById(id);
 const text = $("text"), body = document.body;
 let i = 0, busy = false, started = false;
 
-// Xử lý màn hình tối mở đầu -> Bước ra ánh sáng
 const introOverlay = $("intro-overlay");
 introOverlay.addEventListener("click", () => {
   if (started) return;
   started = true;
   introOverlay.classList.add("hide");
 
-  // Tự động bật nhạc khi người dùng tương tác bước ra ánh sáng
   bgMusic.play().then(() => {
     musicBtn.textContent = "🔇 Tắt Nhạc";
     isMusicPlaying = true;
@@ -238,7 +236,6 @@ introOverlay.addEventListener("click", () => {
   show(0);
 });
 
-// Dựng cảnh nền
 let pines = "";
 for (let k = 0; k < 14; k++) { const x = 12 + k * 29 + (k % 3) * 6, h = 26 + (k * 7 % 18), y = 76;
   pines += `<polygon points="${x},${y - h} ${x + 9},${y} ${x - 9},${y}"/><polygon points="${x},${y - h - 9} ${x + 6.5},${y - h * .45} ${x - 6.5},${y - h * .45}"/>`; }
@@ -287,7 +284,6 @@ document.addEventListener("keydown", e => {
 });
 $("again").addEventListener("click", e => { e.stopPropagation(); i = 0; parts.length = 0; show(0); });
 
-// Nút đổi Vibe
 const moodBtn = $("moodBtn");
 let isStorm = false;
 moodBtn.addEventListener("click", e => {
@@ -297,7 +293,6 @@ moodBtn.addEventListener("click", e => {
   moodBtn.textContent = isStorm ? "⚡ Vibe: Bão Tuyết" : "🌙 Vibe: Êm Dịu";
 });
 
-// Xử lý bật/tắt nhạc file nội bộ
 const musicBtn = $("musicBtn");
 const bgMusic = $("bgMusic");
 let isMusicPlaying = false;
@@ -318,7 +313,6 @@ musicBtn.addEventListener("click", e => {
   }
 });
 
-// Phản ứng lầy lội khi bấm vào Bông
 const bongContainer = $("bongContainer"), bubble = $("speechBubble");
 const reactions = [
   "Ấn gì mà ấn lắm thế! 😄",
@@ -337,7 +331,6 @@ bongContainer.addEventListener("pointerup", e => {
   bubbleTimer = setTimeout(() => { bubble.style.display = "none"; }, 1800);
 });
 
-// Canvas Tuyết rơi
 const cv = $("snow"), cx = cv.getContext("2d"), dpr = devicePixelRatio || 1;
 const flakes = { list: [], target: 95 }, parts = [];
 function size() { cv.width = innerWidth * dpr; cv.height = innerHeight * dpr; }
@@ -378,7 +371,6 @@ function loop() {
   if (!calm) requestAnimationFrame(loop);
 }
 loop(); 
-// Chưa gọi show(0) ngay mà đợi người dùng bấm nút mở màn hình tối.
 </script>
 </body>
 </html>
