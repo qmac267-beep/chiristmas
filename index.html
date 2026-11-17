@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Bông và món quà đêm Giáng sinh</title>
+<title>Snowy và món quà đêm Giáng sinh</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
 <style>
@@ -18,25 +18,29 @@ html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
 body{margin:0;height:100%;overflow:hidden;font-family:"Baloo 2","Segoe UI",system-ui,sans-serif;color:var(--ink);
   background:linear-gradient(180deg,var(--sky-top),var(--sky-bot) 75%);-webkit-tap-highlight-color:transparent;user-select:none;cursor:pointer}
 
-/* Màn hình tối mở đầu (Tăng thời gian fade để hiệu ứng mượt và sâu lắng hơn) */
+/* Màn hình tối mở đầu với tương tác ở phía dưới */
 #intro-overlay{
   position:fixed; inset:0; background:#02030a; z-index:9999;
-  display:flex; flex-direction:column; justify-content:center; align-items:center;
-  text-align:center; padding:24px; transition:opacity 2.2s ease, visibility 2.2s ease;
+  display:flex; flex-direction:column; justify-content:flex-end; align-items:center;
+  text-align:center; padding:24px 24px calc(64px + env(safe-area-inset-bottom,0px));
+  transition:opacity 2.2s ease, visibility 2.2s ease;
   cursor:pointer;
 }
 #intro-overlay.hide{opacity:0; visibility:hidden; pointer-events:none;}
-.intro-box{max-width:420px; animation:bounce 2s infinite;}
-.intro-box h2{font-size:2.2rem; color:var(--lamp); margin-bottom:12px; text-shadow:0 0 20px rgba(255,200,107,0.5);}
-.intro-box p{font-size:1.1rem; color:#dcdde1; margin-bottom:28px; line-height:1.6;}
-.intro-btn{
-  background:linear-gradient(45deg, var(--berry), var(--lamp));
-  border:2.5px solid #fff; padding:12px 32px; border-radius:999px;
-  font:inherit; font-weight:800; font-size:1.15rem; color:#fff;
-  box-shadow:0 6px 25px rgba(224,82,95,0.5); cursor:pointer;
-  transition:transform 0.2s;
+#dark-prompt{
+  max-width:440px; padding:18px 24px; border-radius:20px;
+  background:radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 75%);
+  transition:opacity 0.35s ease, transform 0.35s ease;
 }
-.intro-btn:hover{transform:scale(1.05);}
+#dark-prompt.fade{opacity:0; transform:translateY(6px);}
+#dark-text{
+  font-size:clamp(1.25rem, 5vw, 1.65rem); font-weight:700; color:#e2e8f0;
+  margin:0 0 12px; line-height:1.4; text-shadow:0 0 18px rgba(255,255,255,0.25);
+}
+#dark-hint{
+  font-size:0.95rem; font-weight:700; color:var(--lamp); opacity:0.85;
+  animation:tw 1.8s ease-in-out infinite alternate;
+}
 
 .bg{position:fixed;inset:0;pointer-events:none}
 #stars{background:
@@ -89,8 +93,16 @@ body{margin:0;height:100%;overflow:hidden;font-family:"Baloo 2","Segoe UI",syste
 @keyframes open{to{transform:rotate(-38deg) translate(-4px,-8px)}}
 .light{animation:glow 1.8s ease-in-out infinite alternate}
 
-#bongContainer{position:relative;cursor:pointer;display:inline-block;pointer-events:auto;z-index:25;}
-#bong{width:min(32vw,135px);height:auto;overflow:visible;animation:bob 3.4s ease-in-out infinite;pointer-events:auto;}
+/* Container của Snowy có hiệu ứng di chuyển mượt sang trái/phải */
+#snowyContainer{
+  position:relative; cursor:pointer; display:inline-block; pointer-events:auto; z-index:25;
+  transform:translateX(0) rotate(0deg);
+  transition:transform 0.95s cubic-bezier(0.25, 1, 0.5, 1);
+}
+#snowyContainer.move-left{transform:translateX(clamp(-75px, -16vw, -36px)) rotate(-6deg);}
+#snowyContainer.move-right{transform:translateX(clamp(36px, 16vw, 75px)) rotate(6deg);}
+
+#snowy{width:min(32vw,135px);height:auto;overflow:visible;animation:bob 3.4s ease-in-out infinite;pointer-events:auto;}
 @keyframes bob{50%{translate:0 -8px}}
 .eye{transform-box:fill-box;transform-origin:center;animation:blink 4.6s infinite}
 @keyframes blink{0%,93%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
@@ -111,18 +123,16 @@ body{margin:0;height:100%;overflow:hidden;font-family:"Baloo 2","Segoe UI",syste
 #shoot{position:fixed;top:14vh;left:-20vw;width:90px;height:3px;border-radius:3px;background:linear-gradient(90deg,transparent,#fff);rotate:18deg;opacity:0}
 .final #shoot{animation:shoot 1.6s 1s ease-out forwards}
 @keyframes shoot{0%{translate:0 0;opacity:1}100%{translate:130vw 40vh;opacity:0}}
-@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-@media (prefers-reduced-motion:reduce){#bong,.light,.bulb,#stars,#aurora,#hint,.eye,.spark{animation:none}}
+@media (prefers-reduced-motion:reduce){#snowy,.light,.bulb,#stars,#aurora,#hint,.eye,.spark{animation:none}}
 </style>
 </head>
 <body>
 
-<!-- Màn hình tối mở đầu -->
+<!-- Màn hình tối mở đầu: Tương tác ở phía dưới để bước ra ánh sáng -->
 <div id="intro-overlay">
-  <div class="intro-box">
-    <h2>❄️ Đêm Đông Lạnh Giá...</h2>
-    <p>Có một điều bất ngờ đang chờ đón bạn ở phía trước.</p>
-    <button class="intro-btn" type="button">✨ Bước Vào Ánh Sáng</button>
+  <div id="dark-prompt">
+    <p id="dark-text">Tối quá… Có ai ở ngoài đó không?</p>
+    <div id="dark-hint">chạm vào bóng tối phía dưới</div>
   </div>
 </div>
 
@@ -177,9 +187,9 @@ body{margin:0;height:100%;overflow:hidden;font-family:"Baloo 2","Segoe UI",syste
     </svg>
   </div>
 
-  <div id="bongContainer">
+  <div id="snowyContainer">
     <div id="speechBubble"></div>
-    <svg id="bong" viewBox="0 0 120 130" aria-hidden="true">
+    <svg id="snowy" viewBox="0 0 120 130" aria-hidden="true">
       <ellipse cx="60" cy="124" rx="38" ry="5" fill="rgba(0,0,0,.25)"/>
       <g id="armL"><path d="M18 78 Q4 76 2 62" fill="none" stroke="#5a3a1e" stroke-width="5" stroke-linecap="round"/></g>
       <g id="armR"><path d="M102 78 Q116 76 118 62" fill="none" stroke="#5a3a1e" stroke-width="5" stroke-linecap="round"/></g>
@@ -206,34 +216,63 @@ body{margin:0;height:100%;overflow:hidden;font-family:"Baloo 2","Segoe UI",syste
 const params = new URLSearchParams(location.search);
 const NAME = params.get("to") || "cậu";
 
+// Các câu thoại trong màn hình tối trước khi bước ra ánh sáng
+const DARK_LINES = [
+  "Tối quá… Có ai ở ngoài đó không?",
+  "Hình như có tiếng bước chân của " + NAME + " đang lại gần...",
+  "Chạm thêm một lần nữa để thắp sáng đêm Giáng sinh nhé ✨"
+];
+
+// Cốt truyện chính kèm hành động di chuyển (move: "left" | "right" | "center")
 const SCENES = [
-  { t: "Ơ… tuyết rơi rồi sao?", mood: "sleepy" },
-  { t: "Chào " + NAME + "! Tớ là <b>Bông</b>, tớ đến đây theo yêu cầu của Wilhelm để chúc mừng cậu.", mood: "happy" },
-  { t: "Đêm nay ông già Noel nhờ tớ đi giao <b>một món quà</b>.", mood: "happy" },
-  { t: "Tớ đã đi qua bao con phố lạnh để tìm " + NAME + "…" },
-  { t: "May quá, cây thông này sáng lên để dẫn đường cho tớ!", tree: true, mood: "happy" },
-  { t: "Nghe bảo năm nay " + NAME + " đã <b>cố gắng rất nhiều</b> rồi đó nha.", tree: true, mood: "happy" },
-  { t: "Giáng sinh an lành nhé, <b>" + NAME + "</b>! Chúc " + NAME + " một mùa đông thật ấm, nhiều tiếng cười và thật nhiều bình yên.", tree: true, gift: true, mood: "happy", final: true }
+  { t: "Ơ… tuyết rơi rồi sao?", mood: "sleepy", move: "center" },
+  { t: "Chào " + NAME + "! Tớ là <b>Snowy</b>, tớ đến đây theo yêu cầu của Wilhelm để chúc mừng cậu.", mood: "happy", move: "left" },
+  { t: "Đêm nay ông già Noel nhờ tớ đi giao <b>một món quà</b>.", mood: "happy", move: "right" },
+  { t: "Tớ đã đi qua bao con phố lạnh để tìm " + NAME + "…", move: "left" },
+  { t: "May quá, cây thông này sáng lên để dẫn đường cho tớ!", tree: true, mood: "happy", move: "right" },
+  { t: "Nghe bảo năm nay " + NAME + " đã <b>cố gắng rất nhiều</b> rồi đó nha.", tree: true, mood: "happy", move: "left" },
+  { t: "Giáng sinh an lành nhé, <b>" + NAME + "</b>! Chúc " + NAME + " một mùa đông thật ấm, nhiều tiếng cười và thật nhiều bình yên.", tree: true, gift: true, mood: "happy", move: "center", final: true }
 ];
 
 const $ = id => document.getElementById(id);
 const text = $("text"), body = document.body;
-let i = 0, busy = false, started = false;
+let i = 0, busy = false, started = false, darkStep = 0, darkBusy = false;
 
 const introOverlay = $("intro-overlay");
-introOverlay.addEventListener("click", () => {
-  if (started) return;
-  started = true;
-  introOverlay.classList.add("hide");
+const darkPrompt = $("dark-prompt");
+const darkText = $("dark-text");
+const darkHint = $("dark-hint");
 
-  bgMusic.play().then(() => {
-    musicBtn.textContent = "🔇 Tắt Nhạc";
-    isMusicPlaying = true;
-  }).catch(err => {
-    console.log("Không thể tự phát nhạc:", err);
-  });
+// Bấm vào vùng bóng tối bên dưới để đọc từng câu trước khi bước vào ánh sáng
+darkPrompt.addEventListener("click", e => {
+  e.stopPropagation();
+  if (started || darkBusy) return;
 
-  show(0);
+  darkStep++;
+  if (darkStep < DARK_LINES.length) {
+    darkBusy = true;
+    darkPrompt.classList.add("fade");
+    setTimeout(() => {
+      darkText.textContent = DARK_LINES[darkStep];
+      if (darkStep === DARK_LINES.length - 1) {
+        darkHint.textContent = "✨ chạm để bước vào ánh sáng";
+      }
+      darkPrompt.classList.remove("fade");
+      darkBusy = false;
+    }, 350);
+  } else {
+    started = true;
+    introOverlay.classList.add("hide");
+
+    bgMusic.play().then(() => {
+      musicBtn.textContent = "🔇 Tắt Nhạc";
+      isMusicPlaying = true;
+    }).catch(err => {
+      console.log("Không thể tự phát nhạc:", err);
+    });
+
+    show(0);
+  }
 });
 
 let pines = "";
@@ -261,10 +300,16 @@ function show(n) {
     body.classList.toggle("show-tree", !!s.tree);
     body.classList.toggle("show-gift", !!s.gift);
     body.classList.toggle("final", !!s.final);
-    $("bong").classList.toggle("happy", s.mood === "happy");
-    $("bong").classList.toggle("sleepy", s.mood === "sleepy");
+    $("snowy").classList.toggle("happy", s.mood === "happy");
+    $("snowy").classList.toggle("sleepy", s.mood === "sleepy");
     $("mouth").setAttribute("d", s.mood === "happy" ? "M48 94 Q60 108 72 94" : "M52 96 Q60 98 68 96");
-    
+
+    // Điều khiển hướng di chuyển mượt mà của Snowy
+    const sc = $("snowyContainer");
+    sc.classList.remove("move-left", "move-right");
+    if (s.move === "left") sc.classList.add("move-left");
+    if (s.move === "right") sc.classList.add("move-right");
+
     flakes.target = s.final ? 170 : 95;
     if (s.final) burst();
   }, 420);
@@ -313,16 +358,16 @@ musicBtn.addEventListener("click", e => {
   }
 });
 
-const bongContainer = $("bongContainer"), bubble = $("speechBubble");
+const snowyContainer = $("snowyContainer"), bubble = $("speechBubble");
 const reactions = [
   "Ấn gì mà ấn lắm thế! 😄",
   "Hắt xì! Lạnh quá đi...",
-  "Tớ được Wilhelm nhờ vả cẩn thận lắm đấy nhé!",
+  "Tớ là Snowy, được Wilhelm nhờ vả cẩn thận lắm đấy nhé!",
   "Sắp tới Noel rồi, hồi hộp quá đi!",
   "Chạm nhẹ thôi, tớ tan chảy bây giờ!"
 ];
 let bubbleTimer;
-bongContainer.addEventListener("pointerup", e => {
+snowyContainer.addEventListener("pointerup", e => {
   e.stopPropagation();
   e.preventDefault();
   clearTimeout(bubbleTimer);
