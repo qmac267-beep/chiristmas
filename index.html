@@ -17,6 +17,27 @@ html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
 *,*::before,*::after{box-sizing:border-box}
 body{margin:0;height:100%;overflow:hidden;font-family:"Baloo 2","Segoe UI",system-ui,sans-serif;color:var(--ink);
   background:linear-gradient(180deg,var(--sky-top),var(--sky-bot) 75%);-webkit-tap-highlight-color:transparent;user-select:none;cursor:pointer}
+
+/* Màn hình tối mở đầu (Bước ra ánh sáng) */
+#intro-overlay{
+  position:fixed; inset:0; background:#02030a; z-index:9999;
+  display:flex; flex-direction:column; justify-content:center; align-items:center;
+  text-align:center; padding:24px; transition:opacity 1.4s ease, visibility 1.4s ease;
+  cursor:pointer;
+}
+#intro-overlay.hide{opacity:0; visibility:hidden; pointer-events:none;}
+.intro-box{max-width:420px; animation:bounce 2s infinite;}
+.intro-box h2{font-size:2.2rem; color:var(--lamp); margin-bottom:12px; text-shadow:0 0 20px rgba(255,200,107,0.5);}
+.intro-box p{font-size:1.1rem; color:#dcdde1; margin-bottom:28px; line-height:1.6;}
+.intro-btn{
+  background:linear-gradient(45deg, var(--berry), var(--lamp));
+  border:2.5px solid #fff; padding:12px 32px; border-radius:999px;
+  font:inherit; font-weight:800; font-size:1.15rem; color:#fff;
+  box-shadow:0 6px 25px rgba(224,82,95,0.5); cursor:pointer;
+  transition:transform 0.2s;
+}
+.intro-btn:hover{transform:scale(1.05);}
+
 .bg{position:fixed;inset:0;pointer-events:none}
 #stars{background:
   radial-gradient(1.5px 1.5px at 12% 18%,#fff,transparent),radial-gradient(1px 1px at 28% 40%,#fff,transparent),
@@ -90,16 +111,27 @@ body{margin:0;height:100%;overflow:hidden;font-family:"Baloo 2","Segoe UI",syste
 #shoot{position:fixed;top:14vh;left:-20vw;width:90px;height:3px;border-radius:3px;background:linear-gradient(90deg,transparent,#fff);rotate:18deg;opacity:0}
 .final #shoot{animation:shoot 1.6s 1s ease-out forwards}
 @keyframes shoot{0%{translate:0 0;opacity:1}100%{translate:130vw 40vh;opacity:0}}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 @media (prefers-reduced-motion:reduce){#bong,.light,.bulb,#stars,#aurora,#hint,.eye,.spark{animation:none}}
 </style>
 </head>
 <body>
+
+<!-- Màn hình tối mở đầu: Bước ra ánh sáng -->
+<div id="intro-overlay">
+  <div class="intro-box">
+    <h2>❄️ Đêm Đông Lạnh Giá...</h2>
+    <p>Có một điều bất ngờ đang chờ đón bạn ở phía trước.</p>
+    <button class="intro-btn" type="button">✨ Bước Vào Ánh Sáng</button>
+  </div>
+</div>
+
 <div class="top-controls">
   <button id="moodBtn" class="ctrl-btn" type="button">🌙 Vibe: Êm Dịu</button>
   <button id="musicBtn" class="ctrl-btn" type="button">🎵 Bật Nhạc</button>
 </div>
 
-<!-- Thẻ nhạc nội bộ (Đổi tên file mp3 của bạn thành nhac.mp3 hoặc sửa lại src) -->
+<!-- Thẻ nhạc nội bộ -->
 <audio id="bgMusic" loop src="nhac.mp3"></audio>
 
 <div class="bg" id="stars"></div>
@@ -171,7 +203,6 @@ body{margin:0;height:100%;overflow:hidden;font-family:"Baloo 2","Segoe UI",syste
 <div id="hint">chạm để tiếp tục</div>
 
 <script>
-// Lấy tên từ URL (ví dụ: ?to=Tên_Người_Nhận), mặc định là "cậu"
 const params = new URLSearchParams(location.search);
 const NAME = params.get("to") || "cậu";
 
@@ -187,7 +218,25 @@ const SCENES = [
 
 const $ = id => document.getElementById(id);
 const text = $("text"), body = document.body;
-let i = 0, busy = false;
+let i = 0, busy = false, started = false;
+
+// Xử lý màn hình tối mở đầu -> Bước ra ánh sáng
+const introOverlay = $("intro-overlay");
+introOverlay.addEventListener("click", () => {
+  if (started) return;
+  started = true;
+  introOverlay.classList.add("hide");
+
+  // Tự động bật nhạc khi người dùng tương tác bước ra ánh sáng
+  bgMusic.play().then(() => {
+    musicBtn.textContent = "🔇 Tắt Nhạc";
+    isMusicPlaying = true;
+  }).catch(err => {
+    console.log("Không thể tự phát nhạc:", err);
+  });
+
+  show(0);
+});
 
 // Dựng cảnh nền
 let pines = "";
@@ -225,16 +274,16 @@ function show(n) {
 }
 
 function next() {
-  if (busy || i >= SCENES.length - 1) return;
+  if (!started || busy || i >= SCENES.length - 1) return;
   busy = true; i++; show(i);
   setTimeout(() => busy = false, 900);
 }
 
 document.addEventListener("pointerup", e => { 
-  if (e.target.id !== "again" && e.target.id !== "moodBtn" && e.target.id !== "musicBtn") next(); 
+  if (started && e.target.id !== "again" && e.target.id !== "moodBtn" && e.target.id !== "musicBtn") next(); 
 });
 document.addEventListener("keydown", e => {
-  if ((e.key === " " || e.key === "Enter" || e.key === "ArrowRight") && e.target.id !== "again") { e.preventDefault(); next(); } 
+  if (started && (e.key === " " || e.key === "Enter" || e.key === "ArrowRight") && e.target.id !== "again") { e.preventDefault(); next(); } 
 });
 $("again").addEventListener("click", e => { e.stopPropagation(); i = 0; parts.length = 0; show(0); });
 
@@ -328,7 +377,8 @@ function loop() {
   }
   if (!calm) requestAnimationFrame(loop);
 }
-loop(); show(0);
+loop(); 
+// Chưa gọi show(0) ngay mà đợi người dùng bấm nút mở màn hình tối.
 </script>
 </body>
 </html>
